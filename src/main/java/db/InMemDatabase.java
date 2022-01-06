@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -39,11 +40,11 @@ public class InMemDatabase {
         rows.get(rowKey).addColumn(new Column<>(column.getName(), column.getVal()));
     }
 
-    public Column getColumnFromRow(String rowKey, String columnName) {
+    public Optional<Column> getColumnFromRow(String rowKey, String columnName) {
         logger.debug("get column {} from row {}", columnName, rowKey);
         if (!rows.containsKey(rowKey))
-            return null;
-        return rows.get(rowKey).readColumn(columnName);
+            return Optional.empty();
+        return Optional.of(rows.get(rowKey).readColumn(columnName));
     }
 
     public List<Column> getMultiColumnsFromRow(String rowKey, List<String> names) {

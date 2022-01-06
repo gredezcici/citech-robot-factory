@@ -1,9 +1,9 @@
 package entity;
 
-/**
- * @author chaochen
- */
-
+/** @author chaochen */
 public enum OrderStatus {
-    CREATED, PROCESSING, DELIVERED, CANCELLED
+  CREATED,
+  PROCESSING,
+  DELIVERED,
+  CANCELLED
 }

@@ -1,13 +1,10 @@
 package exception;
 
-/**
- * @author chaochen
- */
-
+/** @author chaochen */
 public class InvalidReqException extends RuntimeException {
-    private static final long serialVersionUID = -5987820352168221240L;
+  private static final long serialVersionUID = -5987820352168221240L;
 
-    public InvalidReqException(String message) {
-        super(message);
-    }
+  public InvalidReqException(String message) {
+    super(message);
+  }
 }

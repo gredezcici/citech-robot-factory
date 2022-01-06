@@ -1,9 +1,6 @@
 package db;
 
-/**
- * @author chaochen
- */
-
+/** @author chaochen */
 public interface UpdateColumnInterface {
-    boolean applyUpdate(Column prev);
+  boolean applyUpdate(Column prev);
 }
