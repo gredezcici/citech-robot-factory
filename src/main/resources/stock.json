@@ -1,0 +1,74 @@
+{
+  "stock": [
+    {
+      "code": "A",
+      "price": 10.28,
+      "available": 9,
+      "type": "face",
+      "part": "Humanoid Face"
+    },
+    {
+      "code": "B",
+      "price": 24.07,
+      "available": 7,
+      "type": "face",
+      "part": "LCD Face"
+    },
+    {
+      "code": "C",
+      "price": 13.30,
+      "available": 0,
+      "type": "face",
+      "part": "Steampunk Face"
+    },
+    {
+      "code": "D",
+      "price": 28.94,
+      "available": 1,
+      "type": "Arms",
+      "part": "Arms with Hands"
+    },
+    {
+      "code": "E",
+      "price": 12.39,
+      "available": 3,
+      "type": "Arms",
+      "part": "Arms with Grippers"
+    },
+    {
+      "code": "F",
+      "price": 30.77,
+      "available": 2,
+      "type": "Mobility",
+      "part": "Mobility with Wheels"
+    },
+    {
+      "code": "G",
+      "price": 55.13,
+      "available": 15,
+      "type": "Mobility",
+      "part": "Mobility with Legs"
+    },
+    {
+      "code": "H",
+      "price": 50.00,
+      "available": 7,
+      "type": "Mobility",
+      "part": "Mobility with Tracks"
+    },
+    {
+      "code": "I",
+      "price": 90.12,
+      "available": 92,
+      "type": "Material",
+      "part": "Material Bioplastic"
+    },
+    {
+      "code": "J",
+      "price": 82.31,
+      "available": 15,
+      "type": "Material",
+      "part": "Material Metallic"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import java.util.List;
 
 /** @author chaochen */
 public class Order implements Serializable {
-  private static final long serialVersionUID = -6664912267008556466L;
+  private  static final long serialVersionUID = -6664912267008556466L;
   private String orderId;
   private double price;
   private List<String> components;
@@ -18,7 +18,7 @@ public class Order implements Serializable {
     status = OrderStatus.CREATED;
   }
 
-  public String getOrderId() {
+  public  String getOrderId() {
     return orderId;
   }
 

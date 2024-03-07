@@ -2,7 +2,6 @@ package repository;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import db.Column;
 import db.InMemDatabase;
 import db.UpdateColumnInterface;
