@@ -138,7 +138,7 @@ public class JMeterJDBCTestPlan {
         jdbcConfig2.setProperty("dataSource", "v2");
 
         testPlanTree.add(jdbcConfig2);
-
+        JMXCreator.addThroughputController(testPlanTree);
         // Step 8: Save the Test Plan to a JMX file
         SaveService.saveTree(testPlanTree, new FileOutputStream("generated_test_plan.jmx"));
 

@@ -32,19 +32,29 @@
         <dependency>
             <groupId>org.apache.jmeter</groupId>
             <artifactId>ApacheJMeter_core</artifactId>
-            <version>5.5</version>
+            <version>5.6.3</version>
         </dependency>
         <!-- JMeter JDBC -->
         <dependency>
             <groupId>org.apache.jmeter</groupId>
             <artifactId>ApacheJMeter_jdbc</artifactId>
-            <version>5.5</version>
+            <version>5.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_config</artifactId>
+            <version>5.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_java</artifactId>
+            <version>5.6.3</version>
         </dependency>
         <!-- (Optional) JMeter HTTP, if required for HTTP requests -->
         <dependency>
             <groupId>org.apache.jmeter</groupId>
             <artifactId>ApacheJMeter_http</artifactId>
-            <version>5.5</version>
+            <version>5.6.3</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
