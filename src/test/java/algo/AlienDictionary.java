@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * @author Chao Chen
  */
-public class AllienDictionary {
+public class AlienDictionary {
     public static String alienOrder(List<String> words) {
         HashMap<Character, List<Character>> adjList = new HashMap<Character, List<Character>>();
         HashMap<Character, Integer> count = new HashMap<Character, Integer>();
