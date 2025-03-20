@@ -15,6 +15,8 @@ public class LexicographicallySmallestArray {
             nums2[i][0] = nums[i];
             nums2[i][1] = i;
         }
+        StringBuilder sb  = new StringBuilder();
+        String wd =sb.append("wd").toString();
         Arrays.sort(nums2, (x1, x2) -> Integer.compare(x1[0], x2[0]));
         for (int i = 0; i < n; i++) {
             if (i == 0 || nums2[i][0] - nums2[i - 1][0] > limit) {
