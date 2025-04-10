@@ -3,6 +3,7 @@ package service;
 import entity.Order;
 import exception.UnProcessableCompException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Service;
 import repository.InventoryRepository;
 import repository.OrderRepository;
@@ -14,6 +15,7 @@ import java.util.*;
  * @author chaochen
  */
 @Service
+@EnableAutoConfiguration
 public class OrderProcessingService {
 
     private final InventoryRepository inventoryRepository;
@@ -75,5 +77,38 @@ public class OrderProcessingService {
 
     private void placeOrder(Map<String, Integer> codes) throws UnProcessableCompException {
         inventoryRepository.reduceInventoryAvail(codes);
+    }
+    public int[] leftmostBuildingQueries(int[] heights, int[][] queries) {
+        int n = heights.length, qn = queries.length;
+        List<int[]>[] que = new ArrayList[n];
+        for (int i = 0; i < n; i++)
+            que[i] = new ArrayList();
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+        int[] res = new int[qn];
+        Arrays.fill(res, -1);
+        // Step 1
+        for (int qi = 0; qi < qn; qi++) {
+            int i = queries[qi][0], j = queries[qi][1];
+            if (i < j && heights[i] < heights[j]) {
+                res[qi] = j;
+            } else if (i > j && heights[i] > heights[j]) {
+                res[qi] = i;
+            } else if (i == j) {
+                res[qi] = i;
+            } else { // Step 2
+                que[Math.max(i, j)].add(new int[]{Math.max(heights[i], heights[j]), qi});
+            }
+        }
+        // Step 3
+        for (int i = 0; i < n; i++) {
+            while (!pq.isEmpty() && pq.peek()[0] < heights[i]) {
+                res[pq.poll()[1]] = i;
+            }
+            for (int[] q : que[i]) {
+                pq.add(q);
+            }
+        }
+
+        return res;
     }
 }

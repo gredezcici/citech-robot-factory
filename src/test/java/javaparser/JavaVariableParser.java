@@ -3,7 +3,6 @@ package javaparser;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
@@ -15,10 +14,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 public class JavaVariableParser {
@@ -26,15 +22,6 @@ public class JavaVariableParser {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(JavaVariableParser.class);
     private String sourceCode;
 
-    // Constructor
-
-    // Method to parse the source code
-    public void parse() {
-        // Parse the source code
-        CompilationUnit cu = StaticJavaParser.parse(sourceCode);
-
-        // Visit and print the variables
-    }
 
     // Class to store values of the traced variables
     public static class Node {
@@ -146,11 +133,16 @@ public class JavaVariableParser {
         public void mergeValuesToParent() {
             for (Node child : new ArrayList<>(currentNode.children)) {
                 child.variables.forEach((key, value) -> {
-                    currentNode.variables.merge(key, value, (v1, v2) -> {
-                        List<String> merged = new ArrayList<>(v1);
-                        merged.addAll(v2);
-                        return merged;
-                    });
+                    if (currentNode.variables.containsKey(key)) {
+                        List<String> merged = new ArrayList<>(currentNode.variables.get(key));
+                        merged.addAll(value);
+                        currentNode.variables.put(key, merged);
+                    } else {
+                        String undefinedKey = "undefined";
+                        currentNode.variables.putIfAbsent(undefinedKey, new ArrayList<>());
+                        currentNode.variables.get(undefinedKey).addAll(value);
+                    }
+
                 });
                 child.parent = null;
                 currentNode.children.remove(child);
@@ -177,6 +169,8 @@ public class JavaVariableParser {
                         values = collectBinaryExpr(initExpr.asBinaryExpr());
                     } else if (initExpr instanceof NameExpr) {
                         values = getClonedVariableValuesClone(initExpr.asNameExpr().getNameAsString());
+                    } else if (initExpr instanceof MethodCallExpr) {
+                        values = processMethodCallExprCommon(initExpr.asMethodCallExpr());
                     } else {
                         values.add(initExpr.asStringLiteralExpr().getValue());
                     }
@@ -190,7 +184,6 @@ public class JavaVariableParser {
 
         @Override
         public void visit(AssignExpr n, Void arg) {
-            super.visit(n, arg);
             if (n.getOperator() == AssignExpr.Operator.ASSIGN || n.getOperator() == AssignExpr.Operator.PLUS) {
                 String variableName = n.getTarget().toString();
                 Expression value = n.getValue();
@@ -225,51 +218,6 @@ public class JavaVariableParser {
             return Collections.emptyList();
         }
 
-        @Override
-        public void visit(BinaryExpr n, Void arg) {
-            super.visit(n, arg);
-            if (n.getOperator() == BinaryExpr.Operator.PLUS) {
-                System.out.println("Binary expression: " + n.getLeft() + " + " + n.getRight());
-            } else if (n.getOperator() == BinaryExpr.Operator.MINUS) {
-                System.out.println("Binary expression: " + n.getLeft() + " - " + n.getRight());
-            } else if (n.getOperator() == BinaryExpr.Operator.MULTIPLY) {
-                System.out.println("Binary expression: " + n.getLeft() + " * " + n.getRight());
-            } else if (n.getOperator() == BinaryExpr.Operator.DIVIDE) {
-                System.out.println("Binary expression: " + n.getLeft() + " / " + n.getRight());
-            }
-        }
-
-        @Deprecated
-        private List<String> collectBinaryExprParts(BinaryExpr expr) {
-            List<String> leftParts;
-            List<String> rightParts;
-            if (expr.getLeft() instanceof BinaryExpr) {
-                leftParts = collectBinaryExprParts((BinaryExpr) expr.getLeft());
-            } else if (expr.getLeft() instanceof StringLiteralExpr) {
-                leftParts = new ArrayList<>();
-                leftParts.add(expr.getLeft().toString());
-            } else if (expr.getLeft() instanceof NameExpr) {
-                leftParts = getVariableValues(expr.getLeft().asNameExpr().getNameAsString());
-            } else
-                leftParts = new ArrayList<>();
-
-            if (expr.getRight() instanceof BinaryExpr) {
-                rightParts = collectBinaryExprParts((BinaryExpr) expr.getRight());
-            } else if (expr.getRight() instanceof StringLiteralExpr) {
-                rightParts = new ArrayList<>();
-                rightParts.add(expr.getRight().toString());
-            } else if (expr.getRight() instanceof NameExpr) {
-                rightParts = getVariableValues(expr.getRight().asNameExpr().getNameAsString());
-            } else
-                rightParts = new ArrayList<>();
-            List<String> values = new ArrayList<>();
-            for (String l : leftParts) {
-                for (String r : rightParts) {
-                    values.add(l + r);
-                }
-            }
-            return values;
-        }
 
         private List<String> collectBinaryExpr(BinaryExpr expr) {
             List<String> leftParts = processExpression(expr.getLeft());
@@ -296,13 +244,7 @@ public class JavaVariableParser {
             } else if (expr instanceof NameExpr) {
                 vs = getVariableValues(expr.asNameExpr().getNameAsString());
             } else if (expr instanceof MethodCallExpr) {
-                MethodCallExpr n = expr.asMethodCallExpr();
-                if (n.getNameAsString().equals("toString") && n.getScope().isPresent()
-                        && n.getScope().get() instanceof NameExpr) {
-                    NameExpr scope = (NameExpr) n.getScope().get();
-                    vs = getVariableValues(scope.getName().asString());
-                } else
-                    vs = new ArrayList<>();
+                vs = processMethodCallExprCommon(expr.asMethodCallExpr());
             } else {
                 vs = new ArrayList<>();
             }
@@ -310,33 +252,60 @@ public class JavaVariableParser {
             return vs;
         }
 
+        private List<String> processMethodCallExprCommon(MethodCallExpr methodCallExpr) {
+
+            if (methodCallExpr.getScope().isEmpty()
+                    && (methodCallExpr.getScope().get() instanceof MethodCallExpr || methodCallExpr.getScope().get() instanceof NameExpr))
+                return new ArrayList<>();
+            if (methodCallExpr.getNameAsString().equals("toString")) {
+                if (methodCallExpr.getScope().get() instanceof NameExpr) {
+                    String variableName = methodCallExpr.getScope().get().asNameExpr().getNameAsString();
+                    return getVariableValues(variableName);
+                } else {
+                    return processExpression(methodCallExpr.getScope().get().asMethodCallExpr());
+                }
+            } else if (methodCallExpr.getNameAsString().equals("append")) {
+                List<String> arr = new ArrayList<>();
+                while (methodCallExpr != null && methodCallExpr.getNameAsString().equals("append")) {
+                    Expression argExpr = methodCallExpr.getArgument(0);
+                    List<String> vs;
+                    if (argExpr.isMethodCallExpr()) {
+                        vs = processMethodCallExprCommon(argExpr.asMethodCallExpr());
+                    } else {
+                        vs = processExpression(argExpr);
+                    }
+                    if (arr.isEmpty()) {
+                        arr = new ArrayList<>(vs);
+                    } else {
+                        arr = mergeTwoLists(vs, arr);
+                    }
+                    if (methodCallExpr.getScope().isPresent() && methodCallExpr.getScope().get() instanceof MethodCallExpr) {
+                        methodCallExpr = (MethodCallExpr) methodCallExpr.getScope().get();
+                    } else {
+                        methodCallExpr = null;
+                    }
+                }
+                return arr;
+            }
+            return new ArrayList<>();
+        }
+
         @Override
         public void visit(MethodCallExpr n, Void arg) {
-            if (n.getNameAsString().equals("append") && n.getScope().isPresent()
-                    && n.getScope().get() instanceof NameExpr) {
-                NameExpr scope = (NameExpr) n.getScope().get();
-                if (n.getArguments().size() > 1) {
-                    log.error("Method call with more than one argument: " + n);
+            MethodCallExpr expr = n;
+            if (!expr.getScope().isPresent()) {
+                log.error("Method call without scope: " + n);
+                return;
+            }
+            while (!(expr.getScope().get() instanceof NameExpr)) {
+                if (!(expr.getScope().get() instanceof MethodCallExpr)) {
+                    log.error("Unsupported scope type: " + expr.getScope().get());
                     return;
                 }
-                List<String> oldValues = getVariableValues(scope.getName().asString());
-                List<String> newValues;
-                Expression expr = n.getArgument(0);
-                if (expr.isStringLiteralExpr()) {
-                    String appendValue = expr.asStringLiteralExpr().asString();
-                    newValues = new ArrayList<>();
-                    oldValues.forEach(v -> newValues.add(v + appendValue));
-                } else if (expr.isBinaryExpr()) {
-                    List<String> values = collectBinaryExpr(expr.asBinaryExpr());
-                    newValues = mergeTwoLists(oldValues, values);
-                } else if (expr.isNameExpr()) {
-                    newValues = mergeTwoLists(oldValues, getVariableValues(expr.asNameExpr().getNameAsString()));
-                } else {
-                    log.error("Unsupported method call: " + n);
-                    newValues = new ArrayList<>();
-                }
-                currentNode.variables.put(scope.getNameAsString(), newValues);
+                expr = (MethodCallExpr) expr.getScope().get();
             }
+            List<String> newValues = processMethodCallExprCommon(n);
+            currentNode.variables.put(expr.getScope().get().asNameExpr().getNameAsString(), newValues);
         }
 
         private List<String> mergeTwoLists(List<String> list1, List<String> list2) {
@@ -351,13 +320,11 @@ public class JavaVariableParser {
 
         @Override
         public void visit(ReturnStmt n, Void arg) {
-            super.visit(n, arg);
             Expression expr = n.getExpression().orElse(null);
             if (expr != null) {
                 List<String> returnValues = processExpression(expr);
                 currentNode.variables.putIfAbsent("return", returnValues);
             }
         }
-
     }
 }

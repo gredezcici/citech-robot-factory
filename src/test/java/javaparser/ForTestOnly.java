@@ -69,6 +69,7 @@ public class ForTestOnly {
         for (int i = 0; i < 10; i++) {
             sb2.append(i);
         }
+        String mmmm = sb2.append("wf").toString();
         if (condition1.equals("c12")) {
             sb3.append(" * from s12");
         } else if (condition2.equals("w2")) {
