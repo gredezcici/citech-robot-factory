@@ -1,8 +1,6 @@
 package algo;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Chao Chen
@@ -36,7 +34,9 @@ public class Tester {
         System.out.println(Arrays.toString(b));
         int[] c = {0, -5, 1, 3, 5, 4};
         System.out.println(firstKMissingNumbers(c, 3));
-        System.out.println(convert("ABCDEFGHIJKLMNOPQRSTUVWXYZ",5));
+        System.out.println(convert("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 5));
+        int[] f = {3,3,3,1,2,1,1,2,3,3,4};
+        System.out.println(totalFruit(f));
     }
 
     public static List<Integer> firstKMissingNumbers(int[] arr, int k) {
@@ -79,5 +79,52 @@ public class Tester {
             }
         }
         return sb.toString();
+    }
+
+    public static void sortColors(int[] nums) {
+        int l = 0;
+        int r = nums.length - 1;
+        while (l < nums.length && nums[l++] == 0) ;
+        while (r >= 0 && nums[r--] == 2) ;
+        for (int i = l; i <= r; i++) {
+            while (i < r && nums[i] == 2) {
+                swap(nums, i, r--);
+
+            }
+            while (i > l && nums[i] == 0) {
+                swap(nums, i, l++);
+            }
+        }
+    }
+
+    private static void swap(int[] nums, int l, int r) {
+        int t = nums[l];
+        nums[l] = nums[r];
+        nums[r] = t;
+    }
+    public static int totalFruit(int[] fruits) {
+//[1,2,3,4,1,2,1,3,4]
+//        slidingwindow
+        int n = fruits.length;
+        HashMap<Integer,Integer> seen = new HashMap();
+        HashSet<Integer> types = new HashSet<>();
+        int start = 0;
+        int total = 0;
+        int count = 0;
+        for(int i =0;i<n;i++){
+            count++;
+            if(!seen.containsKey(fruits[i])&&seen.size()==2){
+                while(seen.size()==2&&seen.containsKey(fruits[start])){
+                   int rem = seen.get(fruits[start])-1;
+                   if(rem==0)seen.remove(fruits[start]);
+                   else seen.put(fruits[i],rem);
+                   count--;
+                   start++;
+                }
+            }
+            total =Math.max(total,count);
+            seen.put(fruits[i],seen.getOrDefault(fruits[i],0)+1);
+        }
+        return total;
     }
 }

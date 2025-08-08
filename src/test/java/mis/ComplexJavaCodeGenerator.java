@@ -28,6 +28,7 @@ public class ComplexJavaCodeGenerator {
         }
     }
 
+
     public static CtMethod generateRandomMethod(ClassPool pool) throws NotFoundException, CannotCompileException {
         // Define the method signature
         String methodName = METHODS[RANDOM.nextInt(METHODS.length)];
