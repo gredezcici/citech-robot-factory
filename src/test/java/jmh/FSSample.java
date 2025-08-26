@@ -1,5 +1,11 @@
 package jmh;
 
+import mis.C2;
+
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * @author Chao Chen
  */
@@ -37,5 +43,8 @@ public class FSSample {
 
         thread1.start();
         thread2.start();
+        C2 c2 = new C2();
+        Lock lock = new ReentrantLock();
+
     }
 }

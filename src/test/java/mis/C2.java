@@ -12,6 +12,7 @@ public class C2 extends C1 {
     public C2() {
 
     }
+
     InClass inClass;
 
     public InClass getInClass() {
@@ -39,12 +40,12 @@ public class C2 extends C1 {
         System.out.println(m);
     }
 
-    public class InClass {
+    public static class InClass {
         public int getX() {
             return x;
         }
 
-        public int getY() {
+        int getY() {
             return y;
         }
 
@@ -59,6 +60,9 @@ public class C2 extends C1 {
         public InClass(int x, int y) {
             this.x = x;
             this.y = y;
+        }
+
+         static void w() {
         }
 
         private int x;
